@@ -1,0 +1,93 @@
+<html>
+<%= javascript_include_tag 'jquery-1.5.1.js',
+                           'flot/jquery.flot.js',
+                           'flot/jquery.flot.selection.js',
+                           'flot/excanvas.min.js',
+                           'flot/jquery.flot.navigate.js',
+                           'ext/ext-all.js',
+                           'drawcharts.js',
+                           'unpacker.js'
+%>
+
+<body style="margin: 0; padding:0; border:1">
+<h1 style="font-size: 14pt; font-family:Lucida Console"></h1>
+
+  <div id="progress" style="position:absolute; left:10px; height:2px; top:10px; width:600px"></div>
+  <div class="chart_container" style="left:10px; top:50px;">
+       <div class="chart_header"> Unique agents connecting with NOOPs </div>
+       <div id="chart1" class="chart" chartnum="1"></div>
+			 <div class="navigation_bar">
+				 <span id="left_scroll-1" class="leftscroll" style="position:absolute;left:20px"><%= image_tag "left_arrow_up.png", :class => "left_arrow" %></span>
+				 <span style="position:absolute;left:140px"><button class="zoomout">-</button></span>
+				 <span><button class="zoomin" style="position:absolute;left:180px">+</button></span>
+         <span id="right_scroll-1" class="rightscroll" style="position:absolute;right:10px;"><%= image_tag "right_arrow_up.png", :class => "right_arrow" %></span>
+			 </div>
+
+  </div>
+
+  <div class="chart_container" style="left: 370px; top:50px;">  
+       <div class="chart_header"> Incoming NOOP + setcredential</div>
+       <div id="chart2" class="chart" chartnum="2"></div>
+			 <div class="navigation_bar">
+				 <span id="left_scroll-2" class="leftscroll" style="position:absolute;left:20px"><%= image_tag "left_arrow_up.png", :class => "left_arrow" %></span>
+				 <span style="position:absolute;left:140px"><button class="zoomout">-</button></span>
+				 <span><button class="zoomin" style="position:absolute;left:180px">+</button></span>
+         <span id="right_scroll-2" class="rightscroll" style="position:absolute;right:10px;"><%= image_tag "right_arrow_up.png", :class => "right_arrow" %></span>
+			 </div>
+
+  </div>
+
+  <div class="chart_container" style="left: 10px; top:290px;">
+		<div>
+       <div class="chart_header"> % of events that are neither NOOP nor setcredential</div>
+       <div id="chart3" class="chart" chartnum="3"></div>
+			 <div class="navigation_bar">
+				 <span id="left_scroll-3" class="leftscroll" style="position:absolute;left:20px"><%= image_tag "left_arrow_up.png", :class => "left_arrow" %></span>
+				 <span style="position:absolute;left:140px"><button class="zoomout">-</button></span>
+				 <span><button class="zoomin" style="position:absolute;left:180px">+</button></span>
+         <span id="right_scroll-3" class="rightscroll" style="position:absolute;right:10px;"><%= image_tag "right_arrow_up.png", :class => "right_arrow" %></span>
+			 </div>
+		</div>
+  </div>
+
+  <div class="chart_container" style="left: 370px; top:290px;">
+		<div>
+       <div class="chart_header"> Total (incoming) Connections </div>
+       <div id="chart4" class="chart" chartnum="4"></div>
+			 <div class="navigation_bar">
+				 <span id="left_scroll-4" class="leftscroll" style="position:absolute;left:20px"><%= image_tag "left_arrow_up.png", :class => "left_arrow" %></span>
+				 <span style="position:absolute;left:140px">
+					 <button class="zoomout">-</button>
+				 </span>
+				 <span>
+					 <button class="zoomin" style="position:absolute;left:180px">+</button>
+				 </span>
+         <span class="rightscroll" style="position:absolute;right:10px;"><%= image_tag "right_arrow_up.png", :class => "right_arrow" %></span>
+			 </div>
+
+		</div>
+  </div>
+
+  <div class="chart_container" style="width:710px; height: 325px; left: 10px; top:530px">
+       <div class="chart_header" id="commands_by_type"> Commands by type </div>
+       <div id="bar" class="chart" style="height:275px;"></div>
+       <div id="legend" class="chart" style="background-color: white; left: 355px; padding: 3px; width: 340px; height: 275px; top: 37px"></div>
+  </div>
+
+
+<script> 
+
+		 $(document).ready(function() {
+		 interval_data = {};
+		 interval_data["command"] = {};
+		 interval_data["summary"] = {}; 
+		 unpack( eval ('(<%= raw @data_json %>)'), interval_data );
+		 console.log(JSON.stringify(interval_data))
+		 drawCharts(interval_data, 86400,
+                <%= raw @first_interval %>
+               );
+     });
+
+</script>
+</body>
+</html>

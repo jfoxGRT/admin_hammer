@@ -1,0 +1,57 @@
+<%= javascript_include_tag 'drawagentstable.js',
+                           'ext/ext-all.js', 
+
+%>
+
+<h1></h1>
+
+<div style="position: absolute; left: 10px; top: 70px;">
+	<span  id="direction_selector" style="float: left; top: 0px;"></span>
+</div>
+
+<div style="position: absolute; left: 10px; top: 135px;" id="agent_table">
+</div>
+
+<script>
+appRoot = "<%= url_for :controller => 'events', :action => 'index' %>"
+
+var commands = [];
+var p_command_ids = [];
+var p_agent_id = null;
+var p_start_time = null;
+var p_end_time = null;
+
+<% @commands.each { |c| %> 
+
+commands.push({"name": "<%= c %>"}) ;
+
+<% } %>
+
+<% 
+if !@command_ids.nil? 
+  @command_ids.each { |c| 
+%> 
+
+p_command_ids.push("<%= c %>") ;
+
+<% 
+}
+end 
+%>
+
+<% if !@agent_id.nil? %>
+p_agent_id = <%= @agent_id %>;
+<% end %>
+
+<% if !@start_time.nil? %>
+p_start_time = <%= @start_time.to_i * 1000%>;
+<% end %>
+
+<% if !@end_time.nil? %>
+p_end_time = <%= @end_time.to_i * 1000 %>;
+<% end %>
+
+$(document).ready(function() {
+  drawagenttable();
+})
+</script>

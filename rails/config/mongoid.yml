@@ -1,0 +1,24 @@
+defaults: &defaults
+  host: localhost
+  # slaves:
+  #   - host: slave1.local
+  #     port: 27018
+  #   - host: slave2.local
+  #     port: 27019
+
+development:
+#  <<: *defaults
+  database: "sam_connect" #mongo_development
+
+test:
+  <<: *defaults
+  host: 127.0.0.1
+  database: sam_connect
+  
+# set these environment variables on your prod server
+production:
+  host: localhost
+  port: <%= ENV['MONGOID_PORT'] %>
+  username: <%= ENV['MONGOID_USERNAME'] %>
+  password: <%= ENV['MONGOID_PASSWORD'] %>
+  database: sam_connect

@@ -1,0 +1,162 @@
+<%= javascript_include_tag 'flot/jquery.flot.js',
+    'flot/jquery.flot.selection.min.js',
+    'flot/excanvas.min.js',
+    'flot/jquery.flot.navigate.min.js',
+    'drawcharts.js',
+    'unpacker.js'
+%>
+
+<h1 style="font-size: 14pt; font-family:Lucida Console"></h1>
+
+<div class="chart_container" style="left:10px; top:70px;">
+  <div class="chart_header">
+    <span class="chart_num">(1)</span>
+    Unique agents connecting with NOOPs
+  </div>
+  <span class="date_left"></span>
+  <span class="date_right"></span>
+  <div id="chart1" class="chart" chartnum="1"></div>
+  <div class="navigation_bar">
+    <span class="leftscroll">
+      <%= image_tag "left_arrow_up.png", :class => "left_arrow" %>
+    </span>
+    <span class="zoomin_span">
+      <%= image_tag "zoomoutlight.png",  :size=> "24x24", :class => "zoomout" %>
+    </span>
+    <span class="zoomout_span">
+      <%= image_tag "zoominlight.png", :size=> "24x24", :class => "zoomin" %>
+    </span>
+    <span class="rightscroll">
+      <%= image_tag "right_arrow_up.png", :class => "right_arrow" %>
+    </span>
+  </div>
+</div>
+
+<div class="chart_container" style="left: 385px; top:70px;">
+  <div class="chart_header">
+    <span class="chart_num">(2)</span>
+    Incoming NOOP + setcredential
+  </div>
+  <span class="date_left"></span>
+  <span class="date_right"></span>
+
+  <div id="chart2" class="chart" chartnum="2"></div>
+  <div class="navigation_bar">
+    <span id="left_scroll-2" class="leftscroll" style="position:absolute;left:20px">
+      <%= image_tag "left_arrow_up.png", :class => "left_arrow" %>
+    </span>
+    <span style="position:absolute;left:140px">
+      <%= image_tag "zoomoutlight.png", :size=> "24x24", :class => "zoomout" %>
+    </span>
+    <span style="position:absolute;left:180px">
+      <%= image_tag "zoominlight.png", :size=> "24x24", :class => "zoomin" %>
+    </span>
+    <span id="right_scroll-2" class="rightscroll" style="position:absolute;right:10px;">
+      <%= image_tag "right_arrow_up.png", :class => "right_arrow" %>
+    </span>
+  </div>
+</div>
+
+<div class="chart_container" style="left: 10px; top:310px;">
+  <div>
+    <div class="chart_header">
+      <span class="chart_num">(3)</span>
+      % of events that are neither NOOP nor setcredential
+    </div>
+    <span class="date_left"></span>
+    <span class="date_right"></span>
+    <div id="chart3" class="chart" chartnum="3"></div>
+    <div class="navigation_bar">
+      <span id="left_scroll-3" class="leftscroll" style="position:absolute;left:20px">
+        <%= image_tag "left_arrow_up.png", :class => "left_arrow" %>
+      </span>
+      <span style="position:absolute;left:140px">
+        <%= image_tag "zoomoutlight.png", :size=> "24x24", :class => "zoomout" %>
+      </span>
+      <span style="position:absolute;left:180px">
+        <%= image_tag "zoominlight.png", :size=> "24x24", :class => "zoomin" %>
+      </span>
+      <span id="right_scroll-3" class="rightscroll" style="position:absolute;right:10px;">
+        <%= image_tag "right_arrow_up.png", :class => "right_arrow" %>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="chart_container" style="left: 385px; top:310px;">
+  <div>
+    <div class="chart_header">
+      <span class="chart_num">(4)</span>
+      Total (incoming) Connections
+    </div>
+    <span class="date_left"></span>
+    <span class="date_right"></span>
+    <div id="chart4" class="chart" chartnum="4"></div>
+    <div class="navigation_bar">
+      <span id="left_scroll-4" class="leftscroll" style="position:absolute;left:20px">
+        <%= image_tag "left_arrow_up.png", :class => "left_arrow" %>
+      </span>
+      <span style="position:absolute;left:140px">
+        <%= image_tag "zoomoutlight.png", :size=> "24x24", :class => "zoomout" %>
+      </span>
+      <span style="position:absolute;left:180px">
+        <%= image_tag "zoominlight.png", :size=> "24x24", :class => "zoomin" %>
+      </span>
+      <span class="rightscroll" style="position:absolute;right:10px;">
+	<%= image_tag "right_arrow_up.png", :class => "right_arrow" %>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="chart_container" style="width:740px; height: 425px; left: 10px; top:550px">
+  <div class="chart_header" id="commands_by_type"> Commands by type</div>
+  <div class="date_range" style="margin-left: 100px;width:630px;">
+    <span id="bar_dates"></span>
+    <div id="removable" style="text-align: left;position:relative;z-index:2; width:450px;font-size:12px;white-space: normal;">
+      Select a time interval from chart
+      <span style="color:red">(3)</span>
+      above to see the number of times each type of command was executed during that interval</div>
+  </div>
+  <span id="placeholder"></span>
+</div>
+
+<script>
+
+$(document).ready(function() {
+    intervalData = {};
+    intervalData["command"] = {};
+    intervalData["summary"] = {};
+    images = {};
+<%
+        ["zoomoutdark.png",
+         "zoomindark.png",
+         "zoomoutlight.png",
+         "zoominlight.png",
+         "left_arrow_up.png",
+         "left_arrow_down.png",
+         "right_arrow_up.png",
+         "right_arrow_down.png"
+        ].each do |image|
+%>
+    images["<%= image %>"] = "<%= image_path(image) %>";
+<% end %>
+    unpack( eval ('(<%= raw @data_json %>)'), intervalData );
+
+    var intervalType = null;
+    if ("<%= raw @interval_size %>" == "300") {
+        intervalType = "five_minute";
+    } else {
+        intervalType = "twenty_four_hour";
+    }
+    appRoot = "<%= url_for :controller => 'stats', :action => 'index' %>";
+    eventsRoot = "<%= url_for :controller => 'events', :action => 'index' %>";
+    drawCharts(intervalData,
+               <%= raw @interval_size %>,
+               <%= raw @first_interval %>,
+               images
+
+              );
+});
+
+</script>

@@ -1,0 +1,75 @@
+--- Kopie van jqplot.pieRenderer.js	2010-11-12 12:56:23.000000000 +0100
++++ jqplot.pieRenderer.js	2010-11-12 14:15:04.000000000 +0100
+@@ -369,6 +369,13 @@
+             }
+             
+         }
++        
++        // damian: required for line labels
++        var origin = {
++                x: parseInt(ctx.canvas.style.left) + cw/2,
++                y: parseInt(ctx.canvas.style.top) + ch/2
++        };
++        
+         for (var i=0; i<gd.length; i++) {
+             var ang1 = (i == 0) ? sa : gd[i-1][1] + sa;
+             // Adjust ang1 and ang2 for sliceMargin
+@@ -377,6 +384,58 @@
+             this._sliceAngles.push([ang1, ang2]);
+                       
+             this.renderer.drawSlice.call (this, ctx, ang1, ang2, colorGenerator.next(), false);
++            
++            // damian: line labels
++            if (typeof(this.lineLabels !== 'undefined') && this.lineLabels) {
++            
++                // percentage
++                var percentage = gd[i][2] * 100;
++                percentage = (percentage < 1) ? percentage.toFixed(2) : Math.round(percentage);
++                    
++                var mid_ang = ang1 + ((ang2 - ang1)/2);
++                
++                // line style
++                if (typeof(this.lineLabelsLineColor) !== 'undefined') {
++                    ctx.strokeStyle = this.lineLabelsLineColor;
++                } else {
++                    ctx.strokeStyle = '#777';
++                }
++                
++                ctx.lineWidth   = 1;
++                
++                // transpose, so we can reason from the center of the graph
++                ctx.translate(this._center[0], this._center[1]);
++                
++                // line 1
++                ctx.beginPath();
++                var line1_start_x = Math.cos(mid_ang) * this._diameter/1.9;
++                var line1_start_y = Math.sin(mid_ang) * this._diameter/1.9;
++                ctx.moveTo(line1_start_x, line1_start_y); 
++                
++                var line1_end_x = Math.cos(mid_ang) * this._diameter/1.63;
++                var line1_end_y = Math.sin(mid_ang) * this._diameter/1.63;
++                ctx.lineTo(line1_end_x, line1_end_y);
++                
++                // line 2
++                var line2_end_x_offset = (mid_ang >= 4.712 || mid_ang <= 1.57) ? 6 : -6;
++                var line2_end_x = line1_end_x + line2_end_x_offset;
++                var line2_end_y = line1_end_y;    
++                ctx.lineTo(line2_end_x, line2_end_y);
++    
++                ctx.stroke();
++                ctx.closePath();
++                
++                // transpose, back to original system
++                ctx.translate(-1 * this._center[0], -1 * this._center[1]);
++                
++                // label
++                var l = $("<div class='jqplot-pie-line-label' style='position: absolute;'>"+gd[i][0]+" ("+percentage+"%)</div>").insertAfter(ctx.canvas);
++                var l_x_offset = (mid_ang >= 4.712 || mid_ang <= 1.57) ? 4 : -1 * l.width() - 4;
++                var l_y_offset = -1 * l.height() / 2;
++                var l_x = line2_end_x + origin.x + l_x_offset;
++                var l_y = line2_end_y + origin.y + l_y_offset;
++                l.css({left: l_x+"px", top: l_y+"px"});              
++            }
+         
+             if (this.showDataLabels && gd[i][2]*100 >= this.dataLabelThreshold) {
+                 var fstr, avgang = (ang1+ang2)/2, label;

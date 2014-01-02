@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sam Connect Analysis Tool</title>
+  <%= stylesheet_link_tag 'yourtheme' %>
+  <%= stylesheet_link_tag :all, :recursive => true %>
+  <%= javascript_include_tag 'jquery.min.js' %>
+  <%= csrf_meta_tag %>
+</head>
+
+<body style="background-color: white;">
+
+<div id="page_header">
+<span>SAM Connect Analysis Tool (SCAT) </span>
+</div>
+
+<div style="height:4px;background-color:#5877b7;">&nbsp</div>
+<%
+{ "5_minute_stats" => link_to("five minute stats", {
+                                :controller => "/stats", 
+                                :interval => "5_min",
+                                :action => "index"}),
+  "24_hour_stats" => link_to("24 hour stats", {
+                               :controller => "/stats",
+                               :interval => "24_hr",
+                               :action => "index"}),
+  "events_by_agent" => link_to("events by agent", {
+                                 :controller => "/events",
+                                 :action => "index"})
+}.each do |key,val|
+
+  if key == @tab 
+%>    
+  <span class="current_tab" id="<%= key %>"> 
+  <%= val %>
+  </span>  
+<%
+  else
+%> 
+  <span class="tab" id="<%= key %>"> 
+  <%= val %>
+  </span> 
+<%
+  end
+%>
+
+<% end %>
+<%= yield %>
+
+</body>
+</html>
